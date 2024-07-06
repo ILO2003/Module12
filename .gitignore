@@ -1,0 +1,10 @@
+#local dir of terraform
+.terraform/*
+
+# state files of tf 
+*.tfstate
+*.tfstate*
+
+# variables which may include sens data
+
+*.tfvars
