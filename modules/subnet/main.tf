@@ -14,6 +14,11 @@ resource "aws_internet_gateway" "myapp-igw-ilo"{
     }
 }
 
+resource "aws_route_table_association" "a-rtb-subnet-ilo"{
+    subnet_id = var.subnet_id
+    route_table_id = var.route_table_id
+}
+
 resource "aws_route_table" "myapp-route-table-ilo"{
     vpc_id = var.vpc_id
 

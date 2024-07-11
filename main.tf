@@ -15,6 +15,8 @@ module "myapp-subnet-ilo" {
     avail_zone = var.avail_zone
     env_prefix = var.env_prefix
     vpc_id = aws_vpc.myapp-vpc-ilo.id
+    subnet_id = module.myapp-subnet-ilo.subnet.id
+    route_table_id = module.myapp-subnet-ilo.rtb.id
 }
 
 module "myapp-server" {
