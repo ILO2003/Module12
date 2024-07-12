@@ -11,31 +11,17 @@ pipeline {
     tools{
         maven 'maven-3.9'
     }
-        stages {
-            stage('increment version'){
-              when {
-                expression {
-                  return env.GIT_BRANCH == "master"
-                }
-            }
-            steps{
-                script {
-                echo 'incrementing app version ...'
-                sh 'mvn build-helper:parse-version versions:set \
-                    -DnewVersion=\\\${parsedVersion.majorVersion}.\\\${parsedVersion.minorVersion}.\\\${parsedVersion.nextIncrementalVersion} \
-                    versions:commit '
-                def matcher = readFile('pom.xml')  =~ '<version>(.+)</version>'
-                def version = matcher[0][1]
-                env.IMAGE_NAME = "ilo2003/demo-app:$version-$BUILD_NUMBER"
-
-                }
-            }
-        }
-            stage('build app') {
+    environment{
+        IMAGE_NAME = 'nanatwn/demo-app:java-maven-2.0'
+    }
+    stages {
+        stage('build app') {
             steps {
+                script{
                 echo 'building application jar...'
                 echo "testing Ci/cd"
                 buildJar()
+                } 
             }
         }
             stage('build image') {
@@ -56,25 +42,21 @@ pipeline {
                 }
               steps{
                 script{
-                   dir('terraform'){
+                   dir('terraform') {
                     sh "terraform init"
                     sh "terraform apply --auto-approve"
-                    EC_PUBLIC_IP = sh (
-                        script: "terraform output ec2_public_ip",
+                    EC_PUBLIC_IP = sh(
+                        script: "terraform output ec2-public_ip",
                         returnStdout: true
                         ).trim()
 
-                   }
+                    }
                 }
               }
             }
              stage("deploy") {
                 environment {
                     DOCKER_CREDS = credentials('docker-hub-repo')
-                }
-                 when {
-                expression {
-                  return env.GIT_BRANCH == "master"
                 }
             }
             steps {
@@ -94,29 +76,6 @@ pipeline {
                     }
                 }
             }
-        }  
-        stage("commit version update") {
-            when {
-                expression {
-                  return env.GIT_BRANCH == "master"
-                }
-            }
-                    steps {
-                        script {
-                            withCredentials([string(credentialsId: 'github-token', variable: 'TOKEN')]){
-                                sh 'git config --global user.email "jenkins@example.com"'
-                                sh 'git config --global user.name "jenkins"'
-
-                                sh 'git status'
-                                sh 'git branch'
-                                sh 'git config --list'
-                                sh "git remote set-url origin https://${TOKEN}@github.com/ILO2003/Module9.git"
-                                sh 'git add .'
-                                sh 'git commit -m "CI: version bump"'
-                                sh 'git push -f origin HEAD:master'
-                            }
-                        }
-                    }
-                }             
+        }             
     }
 } 
