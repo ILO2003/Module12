@@ -87,11 +87,6 @@ data "aws_ami" "latest-amazon-linux-image"{
     }
 }
 
-resource "aws_key_pair" "ssh-key"{
-    key_name = "server-key"
-    public_key = var.public_key
-}
-
 resource "aws_instance" "myapp-server-ilo"{
     ami = data.aws_ami.latest-amazon-linux-image.id
     instance_type = var.instance_type
