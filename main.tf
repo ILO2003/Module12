@@ -113,14 +113,18 @@ resource "aws_instance" "myapp-server-ilo"{
     tags = {
         Name: "${var.env_prefix}-server"
     }
-
-    provisioner "local-exec"{
+/*
+provisioner "local-exec"{
         working_dir = "/Users/ilo/Desktop/DevOps/ansible"
         command = "ansible-playbook --inventory ${self.public_ip}, --private-key ${var.ssh_key_private} --user ec2-user deploy-docker.yaml"
     }
+*/
+    
 }
 
-/*  Configure provisioner using null_resource with triggering to have seperate task for ansible task execution
+# Configure provisioner using null_resource with triggering to have seperate task for ansible task execution
+resource "null_resource" "Configure-server" {
+
     triggers = {
         trigger = aws_instance.myapp-server-ilo.public_ip
     }
@@ -129,7 +133,7 @@ resource "aws_instance" "myapp-server-ilo"{
         working_dir = "/Users/ilo/Desktop/DevOps/ansible"
         command = "ansible-playbook --inventory ${aws_instance.myapp-server-ilo.public_ip}, --private-key ${var.ssh_key_private} --user ec2-user deploy-docker.yaml"
     }
-*/
+}
 
 output "ec2_public_ip"{
     value = aws_instance.myapp-server-ilo.public_ip
